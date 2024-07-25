@@ -23,7 +23,8 @@ def evaluate_image_quality(image, original_image):
     hist_score = cv2.compareHist(hist_original, hist_crop, cv2.HISTCMP_CORREL)
 
     # Combine scores (weights can be adjusted)
-    total_score = edge_score + face_score * 10 + hist_score * 5
+    # total_score = edge_score + face_score * 10 + hist_score * 5
+    total_score = edge_score * 0.3 + face_score * 5 + hist_score * 0.2
     return total_score
 
 def auto_optimal_smart_crop(image, target_width, target_height, destination):

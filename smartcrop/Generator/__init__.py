@@ -15,7 +15,50 @@ FEATURE_DETECT_MIN_DISTANCE = 10
 FACE_DETECT_REJECT_LEVELS = 1.3
 FACE_DETECT_LEVEL_WEIGHTS = 5
 
+
 cascade_path = os.path.dirname(__file__) + '/cascades/haarcascade_frontalface_default.xml'
+
+def update_weights(mode):
+    global COMBINE_FACE_WEIGHT, COMBINE_FEATURE_WEIGHT
+    global FEATURE_DETECT_MAX_CORNERS, FEATURE_DETECT_QUALITY_LEVEL, FEATURE_DETECT_MIN_DISTANCE
+    global FACE_DETECT_REJECT_LEVELS, FACE_DETECT_LEVEL_WEIGHTS
+    
+    if mode == "portrait":
+        COMBINE_FACE_WEIGHT = 20
+        COMBINE_FEATURE_WEIGHT = 10
+        FEATURE_DETECT_MAX_CORNERS = 50
+        FEATURE_DETECT_QUALITY_LEVEL = 0.1
+        FEATURE_DETECT_MIN_DISTANCE = 10
+        FACE_DETECT_REJECT_LEVELS = 1.2
+        FACE_DETECT_LEVEL_WEIGHTS = 5
+    elif mode == "landscape":
+        COMBINE_FACE_WEIGHT = 10
+        COMBINE_FEATURE_WEIGHT = 20
+        FEATURE_DETECT_MAX_CORNERS = 100
+        FEATURE_DETECT_QUALITY_LEVEL = 0.08
+        FEATURE_DETECT_MIN_DISTANCE = 15
+        FACE_DETECT_REJECT_LEVELS = 1.4
+        FACE_DETECT_LEVEL_WEIGHTS = 4
+    elif mode == "square":
+        COMBINE_FACE_WEIGHT = 10
+        COMBINE_FEATURE_WEIGHT = 10
+        FEATURE_DETECT_MAX_CORNERS = 50
+        FEATURE_DETECT_QUALITY_LEVEL = 0.1
+        FEATURE_DETECT_MIN_DISTANCE = 10
+        FACE_DETECT_REJECT_LEVELS = 1.3
+        FACE_DETECT_LEVEL_WEIGHTS = 5
+    else:
+        raise ValueError("Unsupported mode: choose from 'portrait', 'landscape', or 'general'")
+
+def determine_orientation(width, height):
+
+    if width > height:
+        return "landscape"
+    elif height > width:
+        return "portrait"
+    else:
+        return "square"
+
 
 
 def center_from_faces(matrix):
@@ -135,6 +178,9 @@ def smart_crop(image, target_width, target_height, destination, do_resize):
     if original is None:
         print("Could not read source image")
         exit(1)
+    
+    orientation = determine_orientation(original.shape[1], original.shape[0])
+    update_weights(orientation)
 
     target_height = int(target_height)
     target_width = int(target_width)
@@ -152,11 +198,11 @@ def smart_crop(image, target_width, target_height, destination, do_resize):
     if target_width > width:
         print('Warning: target wider than image')
 
-    # center = center_from_faces(matrix)
-    #
-    # if not center:
-    #     print('Using Good Feature Tracking method')
-    #     center = center_from_good_features(matrix)
+    center = center_from_faces(matrix)
+    
+    if not center:
+        print('Using Good Feature Tracking method')
+        center = center_from_good_features(matrix)
     center = auto_center(matrix)
 
     print('Found center at', center)

@@ -36,6 +36,7 @@ def evaluate_image_quality2(image, original_image):
     entropy_score = calculate_entropy2(image)
 
     # Combine scores (weights can be adjusted)
+    # total_score = edge_score * 0.3 + face_score * 5 + hist_score * 0.2 + entropy_score * 0.3
     total_score = edge_score * 0.3 + face_score * 5 + hist_score * 0.2 + entropy_score * 0.3
     return total_score
 
